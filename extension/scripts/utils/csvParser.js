@@ -1,4 +1,6 @@
 const normalizeLineEndings = (text) => text.replace(/\r\n?/g, "\n");
+const stripByteOrderMark = (text) =>
+  text.charCodeAt(0) === 0xfeff ? text.slice(1) : text;
 
 const tokenize = (text) => {
   const rows = [];
@@ -50,7 +52,8 @@ export const parseCSV = (rawText) => {
     return [];
   }
 
-  const rows = tokenize(normalizeLineEndings(rawText));
+  const sanitizedText = stripByteOrderMark(rawText);
+  const rows = tokenize(normalizeLineEndings(sanitizedText));
   if (rows.length === 0) {
     return [];
   }

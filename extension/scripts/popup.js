@@ -66,75 +66,78 @@ const clearError = () => {
 };
 
 const renderSummary = ({ totalMiles, totalGallons, mpg, totalTaxPaid, totalTaxOwed, totalNetTax }) => {
-  const netIsPositive = totalNetTax > 0;
-  const netIsNegative = totalNetTax < 0;
-
-  const netItemClass = [
-    "summary__item",
-    "summary__item--net",
-    netIsPositive ? "summary__item--net-owed" : "",
-    netIsNegative ? "summary__item--net-refund" : ""
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const netValueClass = [
-    "summary__value",
-    netIsPositive ? "summary__value--owed" : "",
-    netIsNegative ? "summary__value--refund" : ""
-  ]
-    .filter(Boolean)
-    .join(" ");
-
-  const netLabel = netIsPositive ? "Net Tax Owed" : netIsNegative ? "Net Tax Refund" : "Net Tax";
-  const netDisplay = netIsNegative
-    ? `-$${formatNumber(Math.abs(totalNetTax))}`
-    : `$${formatNumber(totalNetTax)}`;
+  const netLabel = totalNetTax < 0 ? "Net Tax Refund" : "Net Tax Owed";
+  const netDisplay =
+    totalNetTax < 0 ? `-$${formatNumber(Math.abs(totalNetTax))}` : `$${formatNumber(totalNetTax)}`;
 
   summaryContainer.innerHTML = `
-    <div class="summary__item">
-      <span class="summary__label">Total Miles</span>
-      <span class="summary__value">${formatNumber(totalMiles, { maximumFractionDigits: 0 })}</span>
-    </div>
-    <div class="summary__item">
-      <span class="summary__label">Total Gallons</span>
-      <span class="summary__value">${formatNumber(totalGallons)}</span>
-    </div>
-    <div class="summary__item">
-      <span class="summary__label">Fleet MPG</span>
-      <span class="summary__value">${mpg ? formatNumber(mpg) : "N/A"}</span>
-    </div>
-    <div class="summary__item">
-      <span class="summary__label">Tax Paid</span>
-      <span class="summary__value">$${formatNumber(totalTaxPaid)}</span>
-    </div>
-    <div class="summary__item">
-      <span class="summary__label">Tax Owed</span>
-      <span class="summary__value summary__value--owed">$${formatNumber(totalTaxOwed)}</span>
-    </div>
-    <div class="${netItemClass}">
-      <span class="summary__label">${netLabel}</span>
-      <span class="${netValueClass}">${netDisplay}</span>
+    <div class="summary-container">
+      <div class="summary-main">
+        <div class="metric-label">${netLabel}</div>
+        <div class="metric-value">${netDisplay}</div>
+        <div class="metric-context">Due December 31, 2025</div>
+      </div>
+      <div class="summary-supporting">
+        <div class="supporting-metric">
+          <span class="metric-name">Miles</span>
+          <span class="metric-num">${formatNumber(totalMiles, { maximumFractionDigits: 0 })}</span>
+        </div>
+        <div class="supporting-metric">
+          <span class="metric-name">Gallons</span>
+          <span class="metric-num">${formatNumber(totalGallons)}</span>
+        </div>
+        <div class="supporting-metric">
+          <span class="metric-name">MPG</span>
+          <span class="metric-num">${mpg ? formatNumber(mpg) : "N/A"}</span>
+        </div>
+        <div class="supporting-metric">
+          <span class="metric-name">Paid</span>
+          <span class="metric-num">$${formatNumber(totalTaxPaid)}</span>
+        </div>
+        <div class="supporting-metric">
+          <span class="metric-name">Owed</span>
+          <span class="metric-num">$${formatNumber(totalTaxOwed)}</span>
+        </div>
+      </div>
     </div>
   `;
 };
 
 const renderRows = (rows) => {
-  resultsBody.innerHTML = rows
-    .map(
-      (row) => `
-        <tr>
-          <td>${row.state}</td>
-          <td class="numeric">${formatNumber(row.miles, { maximumFractionDigits: 0 })}</td>
-          <td class="numeric">${formatNumber(row.gallonsUsed)}</td>
-          <td class="numeric">$${formatNumber(row.taxRate, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</td>
-          <td class="numeric">$${formatNumber(row.taxPaid)}</td>
-          <td class="numeric">$${formatNumber(row.taxOwed)}</td>
-          <td class="numeric">$${formatNumber(row.netTax)}</td>
-        </tr>
-      `
-    )
-    .join("");
+  resultsBody.innerHTML = "";
+
+  const fragment = document.createDocumentFragment();
+
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+
+    const cellConfigs = [
+      { text: row.state },
+      { text: formatNumber(row.miles, { maximumFractionDigits: 0 }), className: "numeric" },
+      { text: formatNumber(row.gallonsUsed), className: "numeric" },
+      {
+        text: formatNumber(row.taxRate, { minimumFractionDigits: 3, maximumFractionDigits: 3 }),
+        className: "numeric",
+        prefix: "$"
+      },
+      { text: formatNumber(row.taxPaid), className: "numeric", prefix: "$" },
+      { text: formatNumber(row.taxOwed), className: "numeric", prefix: "$" },
+      { text: formatNumber(row.netTax), className: "numeric", prefix: "$" }
+    ];
+
+    cellConfigs.forEach(({ text, className, prefix }) => {
+      const td = document.createElement("td");
+      if (className) {
+        td.classList.add(className);
+      }
+      td.textContent = `${prefix ?? ""}${text}`;
+      tr.appendChild(td);
+    });
+
+    fragment.appendChild(tr);
+  });
+
+  resultsBody.appendChild(fragment);
 };
 
 const downloadResults = () => {
