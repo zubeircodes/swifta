@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IFTA Automator</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1>IFTA Automator</h1>
+        <p class="app__subtitle">
+          Upload your fuel card and ELD CSV files to calculate jurisdiction level tax
+          values.
+        </p>
+      </header>
+
+      <form id="upload-form" class="card card--upload">
+        <fieldset class="card__section">
+          <legend>Fuel Card Data</legend>
+          <p class="hint">Start with the CSV exported from your fuel card or fuel management portal.</p>
+          <label class="file-input">
+            <div class="file-input__label">
+              <span class="file-input__title">Fuel CSV</span>
+              <span class="file-input__subtitle">CSV only · headers required</span>
+            </div>
+            <input type="file" id="fuel-input" accept=".csv" required />
+          </label>
+          <div class="upload-details" aria-live="polite">
+            <span id="fuel-file-name" class="upload-details__file" data-default="No file selected">No file selected</span>
+            <span id="fuel-status" class="badge badge--pending">Awaiting file</span>
+          </div>
+          <div id="fuel-feedback" class="upload-feedback"></div>
+          <ul class="requirements">
+            <li><strong>Required headers:</strong> <code>state</code>, <code>gallons</code>, <code>tax_paid</code></li>
+            <li><strong>Optional:</strong> <code>vendor</code>, <code>invoice_id</code></li>
+          </ul>
+        </fieldset>
+
+        <fieldset class="card__section">
+          <legend>ELD / Mileage Data</legend>
+          <p class="hint">Use the jurisdiction mileage export from your ELD or telematics provider.</p>
+          <label class="file-input">
+            <div class="file-input__label">
+              <span class="file-input__title">ELD CSV</span>
+              <span class="file-input__subtitle">CSV only · headers required</span>
+            </div>
+            <input type="file" id="eld-input" accept=".csv" required />
+          </label>
+          <div class="upload-details" aria-live="polite">
+            <span id="eld-file-name" class="upload-details__file" data-default="No file selected">No file selected</span>
+            <span id="eld-status" class="badge badge--pending">Awaiting file</span>
+          </div>
+          <div id="eld-feedback" class="upload-feedback"></div>
+          <ul class="requirements">
+            <li><strong>Required headers:</strong> <code>state</code>, <code>miles</code></li>
+            <li><strong>Optional:</strong> <code>vehicle</code>, <code>route</code></li>
+          </ul>
+        </fieldset>
+
+        <div id="upload-overview" class="upload-overview" aria-live="polite"></div>
+
+        <div class="card__actions">
+          <button type="submit" class="button button--primary" id="calculate-btn">Calculate</button>
+          <button type="button" class="button button--secondary" id="reset-btn">Reset</button>
+        </div>
+      </form>
+
+      <section id="results" class="card card--results hidden" aria-live="polite">
+        <header class="card__section card__section--header">
+          <div class="results-header">
+            <h2>Per-State Tax Summary</h2>
+            <button type="button" class="button button--ghost" id="edit-inputs-btn">Edit uploads</button>
+          </div>
+          <div class="summary-grid" id="summary"></div>
+        </header>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>State</th>
+                <th class="numeric">Miles</th>
+                <th class="numeric">Gallons Used</th>
+                <th class="numeric">Tax Rate ($/gal)</th>
+                <th class="numeric">Tax Paid</th>
+                <th class="numeric">Tax Owed</th>
+                <th class="numeric">Net Tax</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+        <footer class="card__section card__section--footer">
+          <button type="button" class="button button--ghost" id="download-btn">Download CSV</button>
+        </footer>
+      </section>
+
+      <section id="errors" class="card card--error hidden" role="alert"></section>
+      <div id="loading-overlay" class="loading-overlay hidden" role="status" aria-live="polite">
+        <div class="loading-overlay__content">
+          <span class="spinner" aria-hidden="true"></span>
+          <span class="loading-overlay__text">Crunching the numbers…</span>
+        </div>
+      </div>
+    </main>
+
+    <script type="module" src="scripts/popup.js"></script>
+  </body>
+</html>
