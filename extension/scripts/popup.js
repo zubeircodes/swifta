@@ -66,13 +66,56 @@ const clearError = () => {
 };
 
 const renderSummary = ({ totalMiles, totalGallons, mpg, totalTaxPaid, totalTaxOwed, totalNetTax }) => {
+  const netIsPositive = totalNetTax > 0;
+  const netIsNegative = totalNetTax < 0;
+
+  const netItemClass = [
+    "summary__item",
+    "summary__item--net",
+    netIsPositive ? "summary__item--net-owed" : "",
+    netIsNegative ? "summary__item--net-refund" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const netValueClass = [
+    "summary__value",
+    netIsPositive ? "summary__value--owed" : "",
+    netIsNegative ? "summary__value--refund" : ""
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  const netLabel = netIsPositive ? "Net Tax Owed" : netIsNegative ? "Net Tax Refund" : "Net Tax";
+  const netDisplay = netIsNegative
+    ? `-$${formatNumber(Math.abs(totalNetTax))}`
+    : `$${formatNumber(totalNetTax)}`;
+
   summaryContainer.innerHTML = `
-    <div><strong>Total Miles:</strong> ${formatNumber(totalMiles, { maximumFractionDigits: 0 })}</div>
-    <div><strong>Total Gallons:</strong> ${formatNumber(totalGallons)}</div>
-    <div><strong>Fleet MPG:</strong> ${mpg ? formatNumber(mpg) : "N/A"}</div>
-    <div><strong>Tax Paid:</strong> $${formatNumber(totalTaxPaid)}</div>
-    <div><strong>Tax Owed:</strong> $${formatNumber(totalTaxOwed)}</div>
-    <div><strong>Net Tax:</strong> $${formatNumber(totalNetTax)}</div>
+    <div class="summary__item">
+      <span class="summary__label">Total Miles</span>
+      <span class="summary__value">${formatNumber(totalMiles, { maximumFractionDigits: 0 })}</span>
+    </div>
+    <div class="summary__item">
+      <span class="summary__label">Total Gallons</span>
+      <span class="summary__value">${formatNumber(totalGallons)}</span>
+    </div>
+    <div class="summary__item">
+      <span class="summary__label">Fleet MPG</span>
+      <span class="summary__value">${mpg ? formatNumber(mpg) : "N/A"}</span>
+    </div>
+    <div class="summary__item">
+      <span class="summary__label">Tax Paid</span>
+      <span class="summary__value">$${formatNumber(totalTaxPaid)}</span>
+    </div>
+    <div class="summary__item">
+      <span class="summary__label">Tax Owed</span>
+      <span class="summary__value summary__value--owed">$${formatNumber(totalTaxOwed)}</span>
+    </div>
+    <div class="${netItemClass}">
+      <span class="summary__label">${netLabel}</span>
+      <span class="${netValueClass}">${netDisplay}</span>
+    </div>
   `;
 };
 
