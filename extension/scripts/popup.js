@@ -104,21 +104,40 @@ const renderSummary = ({ totalMiles, totalGallons, mpg, totalTaxPaid, totalTaxOw
 };
 
 const renderRows = (rows) => {
-  resultsBody.innerHTML = rows
-    .map(
-      (row) => `
-        <tr>
-          <td>${row.state}</td>
-          <td class="numeric">${formatNumber(row.miles, { maximumFractionDigits: 0 })}</td>
-          <td class="numeric">${formatNumber(row.gallonsUsed)}</td>
-          <td class="numeric">$${formatNumber(row.taxRate, { minimumFractionDigits: 3, maximumFractionDigits: 3 })}</td>
-          <td class="numeric">$${formatNumber(row.taxPaid)}</td>
-          <td class="numeric">$${formatNumber(row.taxOwed)}</td>
-          <td class="numeric">$${formatNumber(row.netTax)}</td>
-        </tr>
-      `
-    )
-    .join("");
+  resultsBody.innerHTML = "";
+
+  const fragment = document.createDocumentFragment();
+
+  rows.forEach((row) => {
+    const tr = document.createElement("tr");
+
+    const cellConfigs = [
+      { text: row.state },
+      { text: formatNumber(row.miles, { maximumFractionDigits: 0 }), className: "numeric" },
+      { text: formatNumber(row.gallonsUsed), className: "numeric" },
+      {
+        text: formatNumber(row.taxRate, { minimumFractionDigits: 3, maximumFractionDigits: 3 }),
+        className: "numeric",
+        prefix: "$"
+      },
+      { text: formatNumber(row.taxPaid), className: "numeric", prefix: "$" },
+      { text: formatNumber(row.taxOwed), className: "numeric", prefix: "$" },
+      { text: formatNumber(row.netTax), className: "numeric", prefix: "$" }
+    ];
+
+    cellConfigs.forEach(({ text, className, prefix }) => {
+      const td = document.createElement("td");
+      if (className) {
+        td.classList.add(className);
+      }
+      td.textContent = `${prefix ?? ""}${text}`;
+      tr.appendChild(td);
+    });
+
+    fragment.appendChild(tr);
+  });
+
+  resultsBody.appendChild(fragment);
 };
 
 const downloadResults = () => {
