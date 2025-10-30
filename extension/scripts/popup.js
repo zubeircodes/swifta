@@ -6,14 +6,24 @@ const form = document.getElementById("upload-form");
 const fuelInput = document.getElementById("fuel-input");
 const eldInput = document.getElementById("eld-input");
 const calculateBtn = document.getElementById("calculate-btn");
+const calculateLabel = calculateBtn.querySelector(".button__label");
 const resetBtn = document.getElementById("reset-btn");
 const resultsSection = document.getElementById("results");
 const resultsBody = document.getElementById("results-body");
 const summaryContainer = document.getElementById("summary");
+const insightsContainer = document.getElementById("insights");
 const downloadBtn = document.getElementById("download-btn");
 const errorPanel = document.getElementById("errors");
+const uploadStatus = document.getElementById("upload-status");
+const uploadCards = {
+  fuel: document.querySelector('.upload-card[data-type="fuel"]'),
+  eld: document.querySelector('.upload-card[data-type="eld"]')
+};
+
+const RESULTS_HIDE_DELAY = 220;
 
 let lastResult = null;
+let hideResultsTimer = null;
 
 const readFile = (file) =>
   new Promise((resolve, reject) => {
@@ -49,15 +59,75 @@ const formatNumber = (value, options = {}) => {
   return formatter.format(value ?? 0);
 };
 
+const formatMoney = (value) => {
+  const amount = Math.abs(value ?? 0);
+  return `${value < 0 ? "-" : ""}$${formatNumber(amount)}`;
+};
+
+const formatMoneyAbs = (value) => `$${formatNumber(Math.abs(value ?? 0))}`;
+
+const resolveQuarterContext = () => {
+  const now = new Date();
+  const quarter = Math.floor(now.getMonth() / 3) + 1;
+  const year = now.getFullYear();
+  const dueMonths = [4, 7, 10, 1];
+  const dueMonth = dueMonths[quarter - 1];
+  let dueYear = year;
+  if (quarter === 4) {
+    dueYear += 1;
+  }
+
+  const dueDay = dueMonth === 4 ? 30 : 31;
+  const dueDate = new Date(dueYear, dueMonth - 1, dueDay);
+
+  const formattedDue = dueDate.toLocaleDateString("en-US", {
+    month: "long",
+    day: "numeric",
+    year: "numeric"
+  });
+
+  return {
+    chip: `Quarter ${quarter} • ${year}`,
+    context: `Due ${formattedDue}`
+  };
+};
+
 const setLoading = (isLoading) => {
   calculateBtn.disabled = isLoading;
-  calculateBtn.textContent = isLoading ? "Calculating..." : "Calculate";
+  calculateBtn.classList.toggle("is-loading", isLoading);
+  calculateBtn.setAttribute("aria-busy", String(isLoading));
+  if (calculateLabel) {
+    calculateLabel.textContent = isLoading ? "Calculating..." : "Calculate";
+  }
+};
+
+const hideResults = () => {
+  resultsSection.classList.remove("is-visible");
+  if (hideResultsTimer) {
+    window.clearTimeout(hideResultsTimer);
+  }
+  hideResultsTimer = window.setTimeout(() => {
+    resultsSection.classList.add("hidden");
+    hideResultsTimer = null;
+  }, RESULTS_HIDE_DELAY);
+};
+
+const showResults = () => {
+  if (hideResultsTimer) {
+    window.clearTimeout(hideResultsTimer);
+    hideResultsTimer = null;
+  }
+  resultsSection.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    resultsSection.classList.add("is-visible");
+  });
 };
 
 const showError = (message) => {
   errorPanel.textContent = message;
   errorPanel.classList.remove("hidden");
-  resultsSection.classList.add("hidden");
+  hideResults();
+  downloadBtn.disabled = true;
 };
 
 const clearError = () => {
@@ -65,17 +135,54 @@ const clearError = () => {
   errorPanel.classList.add("hidden");
 };
 
-const renderSummary = ({ totalMiles, totalGallons, mpg, totalTaxPaid, totalTaxOwed, totalNetTax }) => {
-  const netLabel = totalNetTax < 0 ? "Net Tax Refund" : "Net Tax Owed";
-  const netDisplay =
-    totalNetTax < 0 ? `-$${formatNumber(Math.abs(totalNetTax))}` : `$${formatNumber(totalNetTax)}`;
+const updateUploadStatus = () => {
+  if (!uploadStatus) {
+    return;
+  }
+  const hasFuel = Boolean(fuelInput.files && fuelInput.files.length > 0);
+  const hasMileage = Boolean(eldInput.files && eldInput.files.length > 0);
+
+  uploadStatus.classList.remove("upload__status--ready", "upload__status--pending");
+
+  if (hasFuel && hasMileage) {
+    uploadStatus.textContent = "Ready to calculate";
+    uploadStatus.classList.add("upload__status--ready");
+  } else if (hasFuel || hasMileage) {
+    uploadStatus.textContent = hasFuel ? "Add mileage CSV" : "Add fuel CSV";
+    uploadStatus.classList.add("upload__status--pending");
+  } else {
+    uploadStatus.textContent = "Awaiting files";
+    uploadStatus.classList.add("upload__status--pending");
+  }
+};
+
+const markUploadCard = (type, isComplete) => {
+  const card = uploadCards[type];
+  if (!card) return;
+  if (isComplete) {
+    card.classList.remove("is-complete");
+    // Trigger reflow so the pulse animation can replay when files change.
+    void card.offsetWidth;
+    card.classList.add("is-complete");
+  } else {
+    card.classList.remove("is-complete");
+  }
+};
+
+const renderSummary = (result) => {
+  const { totalMiles, totalGallons, mpg, totalTaxPaid, totalTaxOwed, totalNetTax } = result;
+  const netPositive = totalNetTax >= 0;
+  const netLabel = netPositive ? "Net Tax Owed" : "Net Tax Refund";
+  const netDisplay = formatMoney(totalNetTax);
+  const { chip, context } = resolveQuarterContext();
 
   summaryContainer.innerHTML = `
     <div class="summary-container">
-      <div class="summary-main">
+      <div class="summary-main${netPositive ? "" : " summary-main--refund"}">
+        <div class="summary-main__chip">${chip}</div>
         <div class="metric-label">${netLabel}</div>
         <div class="metric-value">${netDisplay}</div>
-        <div class="metric-context">Due December 31, 2025</div>
+        <div class="metric-context">${context}</div>
       </div>
       <div class="summary-supporting">
         <div class="supporting-metric">
@@ -92,15 +199,92 @@ const renderSummary = ({ totalMiles, totalGallons, mpg, totalTaxPaid, totalTaxOw
         </div>
         <div class="supporting-metric">
           <span class="metric-name">Paid</span>
-          <span class="metric-num">$${formatNumber(totalTaxPaid)}</span>
+          <span class="metric-num">${formatMoneyAbs(totalTaxPaid)}</span>
         </div>
         <div class="supporting-metric">
           <span class="metric-name">Owed</span>
-          <span class="metric-num">$${formatNumber(totalTaxOwed)}</span>
+          <span class="metric-num">${formatMoneyAbs(totalTaxOwed)}</span>
         </div>
       </div>
     </div>
   `;
+};
+
+const renderInsights = (result) => {
+  const { rows, totalGallons, totalMiles, totalTaxOwed } = result;
+
+  insightsContainer.innerHTML = "";
+  insightsContainer.classList.add("hidden");
+
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return;
+  }
+
+  const topLiability = rows.reduce(
+    (acc, row) => (row.netTax > (acc?.netTax ?? -Infinity) ? row : acc),
+    null
+  );
+
+  const topRefund = rows.reduce(
+    (acc, row) => (row.netTax < (acc?.netTax ?? Infinity) ? row : acc),
+    null
+  );
+
+  const rateHotspot = rows.reduce(
+    (acc, row) => (row.taxRate > (acc?.taxRate ?? -Infinity) ? row : acc),
+    null
+  );
+
+  const effectiveRate = totalGallons > 0 ? totalTaxOwed / totalGallons : 0;
+  const avgMilesPerState = rows.length > 0 ? totalMiles / rows.length : 0;
+  const hotspotLabel = rateHotspot
+    ? `${rateHotspot.state} @ $${formatNumber(rateHotspot.taxRate, {
+        minimumFractionDigits: 3,
+        maximumFractionDigits: 3
+      })}/gal`
+    : "No rate hotspots detected";
+  const avgMilesLabel = `${formatNumber(avgMilesPerState, { maximumFractionDigits: 0 })} avg miles per state`;
+
+  const insights = [
+    {
+      title: "Largest Liability",
+      value: topLiability && topLiability.netTax > 0 ? topLiability.state : "All clear",
+      meta:
+        topLiability && topLiability.netTax > 0
+          ? `${formatMoney(topLiability.netTax)} owed`
+          : "No jurisdictions owe remittance"
+    },
+    {
+      title: "Strongest Refund",
+      value: topRefund && topRefund.netTax < 0 ? topRefund.state : "Pending",
+      meta:
+        topRefund && topRefund.netTax < 0
+          ? `${formatMoneyAbs(topRefund.netTax)} refund expected`
+          : "No refunds detected this run"
+    },
+    {
+      title: "Blended Exposure",
+      value:
+        effectiveRate > 0
+          ? `${formatNumber(effectiveRate, { minimumFractionDigits: 3, maximumFractionDigits: 3 })} $/gal`
+          : "—",
+      meta: `${hotspotLabel} • ${avgMilesLabel}`
+    }
+  ];
+
+  insightsContainer.innerHTML = insights
+    .map(
+      (insight) => `
+        <div class="insight-card">
+          <span class="insight-card__title">${insight.title}</span>
+          <span class="insight-card__value">${insight.value}</span>
+          <span class="insight-card__meta">${insight.meta}</span>
+        </div>
+      `
+    )
+    .join("");
+
+  insightsContainer.classList.remove("hidden");
 };
 
 const renderRows = (rows) => {
@@ -183,10 +367,16 @@ const downloadResults = () => {
 const resetForm = () => {
   form.reset();
   lastResult = null;
-  resultsSection.classList.add("hidden");
+  hideResults();
   resultsBody.innerHTML = "";
   summaryContainer.innerHTML = "";
+  insightsContainer.innerHTML = "";
+  insightsContainer.classList.add("hidden");
   clearError();
+  downloadBtn.disabled = true;
+  markUploadCard("fuel", false);
+  markUploadCard("eld", false);
+  updateUploadStatus();
 };
 
 const handleSubmit = async (event) => {
@@ -224,9 +414,11 @@ const handleSubmit = async (event) => {
     lastResult = result;
 
     renderSummary(result);
+    renderInsights(result);
     renderRows(result.rows);
 
-    resultsSection.classList.remove("hidden");
+    showResults();
+    downloadBtn.disabled = false;
   } catch (error) {
     console.error(error);
     showError(error.message || "An unexpected error occurred while processing your files.");
@@ -238,3 +430,18 @@ const handleSubmit = async (event) => {
 form.addEventListener("submit", handleSubmit);
 resetBtn.addEventListener("click", resetForm);
 downloadBtn.addEventListener("click", downloadResults);
+
+fuelInput.addEventListener("change", () => {
+  const isComplete = Boolean(fuelInput.files && fuelInput.files.length > 0);
+  markUploadCard("fuel", isComplete);
+  updateUploadStatus();
+});
+
+eldInput.addEventListener("change", () => {
+  const isComplete = Boolean(eldInput.files && eldInput.files.length > 0);
+  markUploadCard("eld", isComplete);
+  updateUploadStatus();
+});
+
+updateUploadStatus();
+downloadBtn.disabled = true;

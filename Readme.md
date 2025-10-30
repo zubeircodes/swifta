@@ -1,22 +1,18 @@
 # IFTA Automator Chrome Extension
 
-This repository contains a minimal Chrome extension that forms the foundation of the IFTA Automator workflow. It allows you to upload fuel card and ELD mileage CSV exports, automatically standardizes the headers, and produces a per-state tax summary using built-in fuel tax rates.
+This repository contains a Chrome side panel experience that forms the foundation of the IFTA Automator workflow. It allows you to upload fuel card and ELD mileage CSV exports, automatically standardizes the headers, and produces a per-state tax summary using built-in fuel tax rates.
 
 ## Features
 
-- Upload separate fuel and mileage CSV files directly in the extension popup.
+- Upload separate fuel and mileage CSV files directly in the extension side panel.
 - Automatic header standardization (supports common synonyms for state, gallons, miles, and tax paid columns).
 - Calculates fleet MPG, per-state gallons used, estimated tax owed, and net tax position.
-- Clean, responsive UI with instant error feedback and downloadable CSV results.
+- Side panel layout inspired by Apple/Stripe/Claude aesthetics, with animated feedback and a downloadable CSV export.
 
 ## Directory Structure
 
 ```
 extension/
-├── assets/
-│   ├── icon16.png
-│   ├── icon48.png
-│   └── icon128.png
 ├── popup.css
 ├── popup.html
 ├── manifest.json
@@ -34,7 +30,7 @@ extension/
 1. Open **chrome://extensions** in Google Chrome.
 2. Enable **Developer mode** in the top right corner.
 3. Click **Load unpacked** and choose the `extension/` folder from this repository.
-4. Pin the “IFTA Automator” action and click it to open the popup.
+4. Pin the “IFTA Automator” action. Click the action and choose **Open side panel** (Chrome remembers this setting for future clicks).
 5. Upload your fuel CSV (requires `state`, `gallons`, and optionally `tax_paid`) and mileage CSV (requires `state`, `miles`).
 6. Click **Calculate** to see the per-state summary or **Download CSV** to export the results.
 

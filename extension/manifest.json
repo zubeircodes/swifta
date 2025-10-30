@@ -4,7 +4,9 @@
   "description": "Upload fuel and ELD CSV files to calculate IFTA tax values per state.",
   "version": "0.1.0",
   "action": {
-    "default_title": "IFTA Automator",
-    "default_popup": "popup.html"
+    "default_title": "IFTA Automator"
+  },
+  "side_panel": {
+    "default_path": "popup.html"
   }
 }
