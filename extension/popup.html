@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IFTA Automator</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <header class="panel__hero">
+        <div class="panel__eyebrow">Quarterly filing companion</div>
+        <h1 class="panel__title">IFTA Automator</h1>
+        <p class="panel__subtitle">
+          Upload raw mileage and fuel exports, reconcile tax exposure per jurisdiction, and
+          leave with filing-ready numbers.
+        </p>
+      </header>
+
+      <form id="upload-form" class="upload">
+        <div class="upload__header">
+          <div>
+            <h2 class="section-title">Prepare your data</h2>
+            <p class="section-copy">Drop in the exports exactly as you download them.</p>
+          </div>
+          <div class="upload__status" id="upload-status">Awaiting files</div>
+        </div>
+
+        <div class="upload__grid">
+          <label class="upload-card" data-type="fuel">
+            <div class="upload-card__content">
+              <div class="upload-card__eyebrow">Fuel card CSV</div>
+              <div class="upload-card__title">Fuel transactions</div>
+              <p class="upload-card__hint">Required columns: state, gallons, tax_paid</p>
+            </div>
+            <input type="file" id="fuel-input" accept=".csv" required />
+          </label>
+
+          <label class="upload-card" data-type="eld">
+            <div class="upload-card__content">
+              <div class="upload-card__eyebrow">ELD / mileage CSV</div>
+              <div class="upload-card__title">Distance records</div>
+              <p class="upload-card__hint">Required columns: state, miles</p>
+            </div>
+            <input type="file" id="eld-input" accept=".csv" required />
+          </label>
+        </div>
+
+        <div class="upload__actions">
+          <button type="button" class="button button--ghost" id="reset-btn">Reset</button>
+          <button type="submit" class="button" id="calculate-btn">
+            <span class="button__label">Calculate</span>
+          </button>
+        </div>
+      </form>
+
+      <section id="results" class="results hidden" aria-live="polite">
+        <header class="results__header">
+          <div>
+            <h2 class="section-title">Per-state tax summary</h2>
+            <p class="section-copy">Confirm exposure, then export a clean CSV snapshot.</p>
+          </div>
+          <button type="button" class="button button--ghost" id="download-btn">Download CSV</button>
+        </header>
+
+        <div id="summary"></div>
+
+        <div id="insights" class="insights hidden"></div>
+
+        <div class="table-card">
+          <div class="table-card__header">
+            <h3 class="table-card__title">Detailed jurisdiction totals</h3>
+            <p class="table-card__copy">Miles, gallons, and tax impact per state.</p>
+          </div>
+          <div class="table-card__body">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th scope="col">State</th>
+                  <th scope="col" class="numeric">Miles</th>
+                  <th scope="col" class="numeric">Gallons</th>
+                  <th scope="col" class="numeric">Rate ($/gal)</th>
+                  <th scope="col" class="numeric">Paid</th>
+                  <th scope="col" class="numeric">Owed</th>
+                  <th scope="col" class="numeric">Net</th>
+                </tr>
+              </thead>
+              <tbody id="results-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="errors" class="message hidden" role="alert"></section>
+    </main>
+
+    <script type="module" src="scripts/popup.js"></script>
+  </body>
+</html>
