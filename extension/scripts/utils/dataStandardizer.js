@@ -43,7 +43,7 @@ export const standardizeFuelRecords = (records) => {
         taxPaid: toNumber(record[taxPaidKey]),
       };
     })
-    .filter((entry) => entry && entry.state !== "" && entry.gallons > 0);
+    .filter((entry) => entry && entry.state !== "" && Number.isFinite(entry.gallons));
 };
 
 export const standardizeMileageRecords = (records) => {
