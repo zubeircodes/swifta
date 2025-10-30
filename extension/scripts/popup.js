@@ -272,17 +272,29 @@ const renderInsights = (result) => {
     }
   ];
 
-  insightsContainer.innerHTML = insights
-    .map(
-      (insight) => `
-        <div class="insight-card">
-          <span class="insight-card__title">${insight.title}</span>
-          <span class="insight-card__value">${insight.value}</span>
-          <span class="insight-card__meta">${insight.meta}</span>
-        </div>
-      `
-    )
-    .join("");
+  const fragment = document.createDocumentFragment();
+
+  insights.forEach(({ title, value, meta }) => {
+    const card = document.createElement("div");
+    card.className = "insight-card";
+
+    const titleEl = document.createElement("span");
+    titleEl.className = "insight-card__title";
+    titleEl.textContent = title;
+
+    const valueEl = document.createElement("span");
+    valueEl.className = "insight-card__value";
+    valueEl.textContent = value;
+
+    const metaEl = document.createElement("span");
+    metaEl.className = "insight-card__meta";
+    metaEl.textContent = meta;
+
+    card.append(titleEl, valueEl, metaEl);
+    fragment.appendChild(card);
+  });
+
+  insightsContainer.appendChild(fragment);
 
   insightsContainer.classList.remove("hidden");
 };
