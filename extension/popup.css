@@ -27,24 +27,24 @@
 
 body {
   margin: 0;
-  min-width: 720px;
   width: 100%;
   min-height: 100vh;
   background: linear-gradient(160deg, #f8fafc 0%, #eef2ff 35%, #f8fafc 100%);
   color: var(--ink-strong);
   display: flex;
   justify-content: center;
-  padding: 24px;
+  padding: 16px;
 }
 
 .panel {
   background: var(--surface);
   border-radius: 24px;
   width: 100%;
+  max-width: 720px;
   display: flex;
   flex-direction: column;
   gap: 24px;
-  padding: 24px 28px 32px;
+  padding: 24px 20px 32px;
   box-shadow: var(--shadow-elevated);
   border: 1px solid var(--border);
 }
@@ -65,7 +65,7 @@ body {
 
 .panel__title {
   margin: 0;
-  font-size: 30px;
+  font-size: 28px;
   letter-spacing: -0.02em;
   font-weight: 700;
 }
@@ -73,7 +73,7 @@ body {
 .panel__subtitle {
   margin: 0;
   color: var(--ink-soft);
-  max-width: 560px;
+  font-size: 13px;
 }
 
 .section-title {
@@ -86,13 +86,14 @@ body {
 .section-copy {
   margin: 4px 0 0;
   color: var(--ink-soft);
+  font-size: 13px;
 }
 
 .upload {
   background: var(--surface-subtle);
   border: 1px solid var(--surface-strong);
   border-radius: 20px;
-  padding: 24px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -101,22 +102,24 @@ body {
 
 .upload__header {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .upload__status {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--ink-soft);
-  padding: 8px 16px;
+  padding: 6px 14px;
   border-radius: 999px;
   background: var(--surface);
   border: 1.5px solid var(--surface-strong);
   transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+  white-space: nowrap;
 }
 
 .upload__status--pending {
@@ -132,9 +135,9 @@ body {
 }
 
 .upload__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .upload-card {
@@ -143,7 +146,7 @@ body {
   flex-direction: column;
   justify-content: space-between;
   gap: 16px;
-  padding: 20px;
+  padding: 18px;
   background: var(--surface);
   border-radius: 20px;
   border: 1.5px solid var(--surface-strong);
@@ -167,8 +170,8 @@ body {
 
 .upload-card:hover,
 .upload-card:focus-within {
-  transform: translateY(-4px);
-  box-shadow: 0 24px 36px rgba(46, 91, 255, 0.15);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 32px rgba(46, 91, 255, 0.15);
   border-color: rgba(46, 91, 255, 0.35);
 }
 
@@ -180,11 +183,11 @@ body {
 .upload-card__content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .upload-card__eyebrow {
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent);
@@ -192,7 +195,7 @@ body {
 }
 
 .upload-card__title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -200,7 +203,7 @@ body {
 .upload-card__hint {
   margin: 0;
   color: var(--ink-soft);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .upload-card input[type="file"] {
@@ -244,15 +247,15 @@ body {
 .upload__actions {
   display: flex;
   justify-content: flex-end;
-  gap: 16px;
+  gap: 12px;
 }
 
 .button {
   position: relative;
   border: none;
   border-radius: 999px;
-  padding: 12px 24px;
-  font-size: 14px;
+  padding: 11px 22px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
@@ -321,7 +324,7 @@ body {
   background: var(--surface);
   border: 1px solid var(--surface-strong);
   border-radius: 24px;
-  padding: 32px;
+  padding: 24px 20px;
   box-shadow: var(--shadow-card);
   display: flex;
   flex-direction: column;
@@ -342,7 +345,8 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 .summary-container {
@@ -355,7 +359,7 @@ body {
 
 .summary-main {
   background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-  padding: 24px 28px;
+  padding: 20px 24px;
   text-align: center;
   border-bottom: 1px solid #fee2e2;
   display: flex;
@@ -396,14 +400,14 @@ body {
 }
 
 .metric-value {
-  font-size: 36px;
+  font-size: 32px;
   font-weight: 800;
   color: #dc2626;
   letter-spacing: -0.03em;
 }
 
 .metric-context {
-  font-size: 13px;
+  font-size: 12px;
   color: #dc2626;
   font-weight: 500;
 }
@@ -426,7 +430,7 @@ body {
 }
 
 .metric-name {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -434,7 +438,7 @@ body {
 }
 
 .metric-num {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #111827;
   font-variant-numeric: tabular-nums;
@@ -442,15 +446,15 @@ body {
 
 .insights {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
 }
 
 .insight-card {
   background: var(--surface-subtle);
   border-radius: 16px;
   border: 1px solid var(--surface-strong);
-  padding: 18px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -458,7 +462,7 @@ body {
 }
 
 .insight-card__title {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -466,17 +470,17 @@ body {
 }
 
 .insight-card__value {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: -0.01em;
   font-variant-numeric: tabular-nums;
 }
 
 .insight-card__meta {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--ink-soft);
+  line-height: 1.4;
 }
-
 
 .table-card {
   background: var(--surface);
@@ -487,7 +491,7 @@ body {
 }
 
 .table-card__header {
-  padding: 20px 24px;
+  padding: 18px 20px;
   border-bottom: 1px solid var(--surface-strong);
   display: flex;
   flex-direction: column;
@@ -496,17 +500,18 @@ body {
 
 .table-card__title {
   margin: 0;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
 }
 
 .table-card__copy {
   margin: 0;
   color: var(--ink-soft);
+  font-size: 12px;
 }
 
 .table-card__body {
-  max-height: 320px;
+  max-height: 360px;
   overflow-y: auto;
 }
 
@@ -514,22 +519,25 @@ body {
   width: 100%;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .data-table th,
 .data-table td {
-  padding: 12px 16px;
+  padding: 10px 12px;
   border-bottom: 1px solid var(--surface-strong);
   text-align: left;
 }
 
 .data-table th {
-  font-size: 11px;
+  font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   color: var(--ink-soft);
   background: var(--surface-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 
 .data-table td.numeric,
@@ -546,35 +554,84 @@ body {
   color: var(--danger);
   border-radius: 18px;
   border: 1.5px solid rgba(220, 38, 38, 0.3);
-  padding: 16px 20px;
+  padding: 14px 18px;
   font-weight: 500;
+  font-size: 13px;
 }
 
 .hidden {
   display: none !important;
 }
 
-@media (max-width: 760px) {
+/* Responsive adjustments for wider screens */
+@media (min-width: 600px) {
+  body {
+    padding: 20px;
+  }
+
+  .panel {
+    padding: 24px 24px 32px;
+  }
+
+  .panel__title {
+    font-size: 30px;
+  }
+
+  .upload {
+    padding: 24px;
+  }
+
+  .upload__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+  }
+
+  .upload-card {
+    padding: 20px;
+  }
+
+  .results {
+    padding: 28px 24px;
+  }
+
+  .summary-main {
+    padding: 24px 28px;
+  }
+
+  .metric-value {
+    font-size: 36px;
+  }
+
+  .insight-card {
+    padding: 18px;
+  }
+
+  .insight-card__value {
+    font-size: 17px;
+  }
+
+  .data-table {
+    font-size: 13px;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: 12px 14px;
+  }
+
+  .data-table th {
+    font-size: 11px;
+  }
+}
+
+/* Additional breakpoint for very wide panels */
+@media (min-width: 760px) {
   body {
     padding: 24px;
   }
 
   .panel {
-    padding: 24px;
-  }
-
-  .upload__grid,
-  .summary-supporting,
-  .insights {
-    grid-template-columns: 1fr;
-  }
-
-  .results__header {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .table-card__body {
-    max-height: none;
+    padding: 28px 32px 36px;
   }
 }

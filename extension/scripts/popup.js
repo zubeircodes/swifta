@@ -248,18 +248,22 @@ const renderInsights = (result) => {
   const insights = [
     {
       title: "Largest Liability",
-      value: topLiability && topLiability.netTax > 0 ? topLiability.state : "All clear",
+      value: topLiability && topLiability.netTax > 0 
+        ? `${topLiability.state} • ${formatMoney(topLiability.netTax)}`
+        : "All clear",
       meta:
         topLiability && topLiability.netTax > 0
-          ? `${formatMoney(topLiability.netTax)} owed`
+          ? "Jurisdiction owes remittance"
           : "No jurisdictions owe remittance"
     },
     {
       title: "Strongest Refund",
-      value: topRefund && topRefund.netTax < 0 ? topRefund.state : "Pending",
+      value: topRefund && topRefund.netTax < 0 
+        ? `${topRefund.state} • ${formatMoneyAbs(topRefund.netTax)}`
+        : "Pending",
       meta:
         topRefund && topRefund.netTax < 0
-          ? `${formatMoneyAbs(topRefund.netTax)} refund expected`
+          ? "Refund expected"
           : "No refunds detected this run"
     },
     {
