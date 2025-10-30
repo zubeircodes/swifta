@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IFTA Automator</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main class="app">
+      <header class="app__header">
+        <h1>IFTA Automator</h1>
+        <p class="app__subtitle">
+          Upload your fuel card and ELD CSV files to calculate jurisdiction level tax
+          values.
+        </p>
+      </header>
+
+      <form id="upload-form" class="card">
+        <fieldset class="card__section">
+          <legend>Fuel Card Data</legend>
+          <label class="file-input">
+            <span>Fuel CSV</span>
+            <input type="file" id="fuel-input" accept=".csv" required />
+          </label>
+          <p class="hint">
+            Required columns: state, gallons, tax_paid (case insensitive). Optional: vendor, invoice_id.
+          </p>
+        </fieldset>
+
+        <fieldset class="card__section">
+          <legend>ELD / Mileage Data</legend>
+          <label class="file-input">
+            <span>ELD CSV</span>
+            <input type="file" id="eld-input" accept=".csv" required />
+          </label>
+          <p class="hint">
+            Required columns: state, miles (case insensitive). Optional: vehicle, route.
+          </p>
+        </fieldset>
+
+        <div class="card__actions">
+          <button type="submit" class="button" id="calculate-btn">Calculate</button>
+          <button type="button" class="button button--secondary" id="reset-btn">Reset</button>
+        </div>
+      </form>
+
+      <section id="results" class="card card--results hidden">
+        <header class="card__section card__section--header">
+          <h2>Per-State Tax Summary</h2>
+          <div id="summary"></div>
+        </header>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>State</th>
+                <th class="numeric">Miles</th>
+                <th class="numeric">Gallons Used</th>
+                <th class="numeric">Tax Rate ($/gal)</th>
+                <th class="numeric">Tax Paid</th>
+                <th class="numeric">Tax Owed</th>
+                <th class="numeric">Net Tax</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
+        </div>
+        <footer class="card__section card__section--footer">
+          <button type="button" class="button button--ghost" id="download-btn">Download CSV</button>
+        </footer>
+      </section>
+
+      <section id="errors" class="card card--error hidden" role="alert"></section>
+    </main>
+
+    <script type="module" src="scripts/popup.js"></script>
+  </body>
+</html>
