@@ -24,9 +24,29 @@ const readFile = (file) =>
   });
 
 const formatNumber = (value, options = {}) => {
+  let { minimumFractionDigits, maximumFractionDigits, ...rest } = options;
+
+  if (minimumFractionDigits == null && maximumFractionDigits == null) {
+    minimumFractionDigits = 2;
+    maximumFractionDigits = 2;
+  } else {
+    if (minimumFractionDigits == null) {
+      minimumFractionDigits = Math.min(maximumFractionDigits ?? 2, 2);
+    }
+
+    if (maximumFractionDigits == null) {
+      maximumFractionDigits = Math.max(minimumFractionDigits, 2);
+    }
+  }
+
+  if (maximumFractionDigits < minimumFractionDigits) {
+    maximumFractionDigits = minimumFractionDigits;
+  }
+
   const formatter = new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: options.minimumFractionDigits ?? 2,
-    maximumFractionDigits: options.maximumFractionDigits ?? 2
+    minimumFractionDigits,
+    maximumFractionDigits,
+    ...rest
   });
   return formatter.format(value ?? 0);
 };
