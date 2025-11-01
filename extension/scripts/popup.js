@@ -475,6 +475,7 @@ resetBtn.addEventListener("click", resetForm);
 downloadBtn.addEventListener("click", downloadResults);
 
 fuelInput.addEventListener("change", () => {
+  console.log("Fuel input changed, files:", fuelInput.files); // ADD THIS
   const isComplete = Boolean(fuelInput.files && fuelInput.files.length > 0);
   markUploadCard("fuel", isComplete);
   displayFileList(fuelInput.files, fuelFileList); // ADD THIS
