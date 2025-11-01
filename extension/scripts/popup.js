@@ -399,10 +399,10 @@ const handleSubmit = async (event) => {
   event.preventDefault();
   clearError();
 
-  const fuelFile = fuelInput.files?.[0];
-  const eldFile = eldInput.files?.[0];
+  const fuelFiles = Array.from(fuelInput.files || []);
+  const eldFiles = Array.from(eldInput.files || []);
 
-  if (!fuelFile || !eldFile) {
+  if (fuelFiles.length === 0 || eldFiles.length === 0) {
     showError("Please select both the fuel and ELD CSV files.");
     return;
   }
@@ -410,23 +410,33 @@ const handleSubmit = async (event) => {
   setLoading(true);
 
   try {
-    const [fuelContent, eldContent] = await Promise.all([readFile(fuelFile), readFile(eldFile)]);
+    // Process all fuel files
+    const allFuelRecords = [];
+    for (const file of fuelFiles) {
+      const content = await readFile(file);
+      const rawRecords = parseCSV(content);
+      const standardized = standardizeFuelRecords(rawRecords);
+      allFuelRecords.push(...standardized);
+    }
 
-    const rawFuelRecords = parseCSV(fuelContent);
-    const rawMileageRecords = parseCSV(eldContent);
+    // Process all mileage files
+    const allMileageRecords = [];
+    for (const file of eldFiles) {
+      const content = await readFile(file);
+      const rawRecords = parseCSV(content);
+      const standardized = standardizeMileageRecords(rawRecords);
+      allMileageRecords.push(...standardized);
+    }
 
-    const fuelRecords = standardizeFuelRecords(rawFuelRecords);
-    const mileageRecords = standardizeMileageRecords(rawMileageRecords);
-
-    if (fuelRecords.length === 0) {
+    if (allFuelRecords.length === 0) {
       throw new Error("Unable to find fuel data. Confirm the CSV contains state and gallons columns.");
     }
 
-    if (mileageRecords.length === 0) {
+    if (allMileageRecords.length === 0) {
       throw new Error("Unable to find mileage data. Confirm the CSV contains state and miles columns.");
     }
 
-    const result = calculateIFTA(fuelRecords, mileageRecords);
+    const result = calculateIFTA(allFuelRecords, allMileageRecords);
     lastResult = result;
 
     renderSummary(result);
