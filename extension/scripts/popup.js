@@ -19,6 +19,8 @@ const uploadCards = {
   fuel: document.querySelector('.upload-card[data-type="fuel"]'),
   eld: document.querySelector('.upload-card[data-type="eld"]')
 };
+const fuelFileList = document.getElementById("fuel-file-list");
+const eldFileList = document.getElementById("eld-file-list");
 
 const RESULTS_HIDE_DELAY = 220;
 
@@ -32,6 +34,19 @@ const readFile = (file) =>
     reader.onerror = () => reject(reader.error ?? new Error("Unable to read file"));
     reader.readAsText(file);
   });
+
+const displayFileList = (files, container) => {
+  if (!files || files.length === 0) {
+    container.innerHTML = '';
+    return;
+  }
+  
+  const fileNames = Array.from(files)
+    .map(file => `<div class="file-item">${file.name}</div>`)
+    .join('');
+  
+  container.innerHTML = fileNames;
+};
 
 const formatNumber = (value, options = {}) => {
   const hasMin = typeof options.minimumFractionDigits === "number";
@@ -392,6 +407,8 @@ const resetForm = () => {
   downloadBtn.disabled = true;
   markUploadCard("fuel", false);
   markUploadCard("eld", false);
+  fuelFileList.innerHTML = ''; // ADD THIS
+  eldFileList.innerHTML = '';  // ADD THIS
   updateUploadStatus();
 };
 
@@ -460,12 +477,14 @@ downloadBtn.addEventListener("click", downloadResults);
 fuelInput.addEventListener("change", () => {
   const isComplete = Boolean(fuelInput.files && fuelInput.files.length > 0);
   markUploadCard("fuel", isComplete);
+  displayFileList(fuelInput.files, fuelFileList); // ADD THIS
   updateUploadStatus();
 });
 
 eldInput.addEventListener("change", () => {
   const isComplete = Boolean(eldInput.files && eldInput.files.length > 0);
   markUploadCard("eld", isComplete);
+  displayFileList(eldInput.files, eldFileList); // ADD THIS
   updateUploadStatus();
 });
 
